@@ -48,7 +48,9 @@ Suivez les étapes ci-dessous pour configurer le projet sur votre machine locale
 
 2. **Générer une clé secrète Django** : 
     
-    Vous pouvez utiliser des outils en ligne tels que Djecrety. Ce site génère une clé secrète Django sécurisée que vous pouvez simplement copier et coller dans votre fichier `.env.`
+
+    Vous pouvez utiliser des outils en ligne tels que [Djecrety](https://djecrety.ir/). Ce site génère une clé secrète Django sécurisée que vous pouvez simplement copier et coller dans votre fichier `.env`.
+
 
     Assurez-vous que les valeurs des autres variables, comme <DEBUG> et <ALLOWED_HOSTS>, sont appropriées pour votre environnement de développement.
 
