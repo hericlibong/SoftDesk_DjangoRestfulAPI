@@ -31,7 +31,7 @@ Suivez les étapes ci-dessous pour configurer le projet sur votre machine locale
 
 Utilisez la commande suivante pour installer toutes les dépendances nécessaires définies dans le `Pipfile` :
 
-    ```bash
+    ```
     pipenv install
     ```
 
@@ -42,7 +42,7 @@ Utilisez la commande suivante pour installer toutes les dépendances nécessaire
 
 Avant de démarrer le projet, vous devez activer l'environnement virtuel :
 
-    ```bash
+    ```
     pipenv shell
     ```
 
@@ -50,7 +50,7 @@ Avant de démarrer le projet, vous devez activer l'environnement virtuel :
 
 Une fois l'environnement activé, vous pouvez démarrer le serveur de développement :
 
-    ```bash
+    ```
     python manage.py runserver
     ```
 
