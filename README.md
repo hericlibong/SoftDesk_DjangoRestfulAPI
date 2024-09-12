@@ -29,9 +29,9 @@ Suivez les étapes ci-dessous pour configurer le projet sur votre machine locale
 
 3. **Installez les dépendances:**
 
-Utilisez la commande suivante pour installer toutes les dépendances nécessaires définies dans le `Pipfile` :
+    Utilisez la commande suivante pour installer toutes les dépendances nécessaires définies dans le Pipfile :
 
-    ```
+    ```shell
     pipenv install
     ```
 
@@ -40,7 +40,7 @@ Utilisez la commande suivante pour installer toutes les dépendances nécessaire
 
 1. **Activez l'environnement virtuel :**
 
-Avant de démarrer le projet, vous devez activer l'environnement virtuel :
+    Avant de démarrer le projet, vous devez activer l'environnement virtuel :
 
     ```
     pipenv shell
@@ -48,7 +48,7 @@ Avant de démarrer le projet, vous devez activer l'environnement virtuel :
 
 2. **Lancez le serveur Django :**
 
-Une fois l'environnement activé, vous pouvez démarrer le serveur de développement :
+    Une fois l'environnement activé, vous pouvez démarrer le serveur de développement :
 
     ```
     python manage.py runserver
