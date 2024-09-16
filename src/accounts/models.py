@@ -8,7 +8,7 @@ class User(AbstractUser):
     can_be_contacted = models.BooleanField(default=False, help_text="User can be contacted or not")
     can_be_data_shared = models.BooleanField(default=False, help_text="User can share data or not")
     groups = models.ManyToManyField(
-        'auth.Group', 
+        'auth.Group',   
         related_name='api_users_groups', blank=True, 
         help_text="The groups this user belongs to."
         )
