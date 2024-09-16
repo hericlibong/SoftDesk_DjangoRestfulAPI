@@ -9,6 +9,8 @@ djangorestframework = "*"
 ipython = "*"
 djangorestframework-simplejwt = "*"
 python-environ = "*"
+drf-yasg = "*"
+setuptools = "*"
 
 [dev-packages]
 
