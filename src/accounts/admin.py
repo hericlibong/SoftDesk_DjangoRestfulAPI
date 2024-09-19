@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import User
+from django.contrib.auth.models import Permission
 
 
 @admin.register(User)
@@ -13,5 +14,13 @@ class UserAdmin(admin.ModelAdmin):
         ('Permissions', {'fields': ('groups', 'user_permissions')}),
     )
     filter_horizontal = ['groups', 'user_permissions']
+    ordering = ['id']
+    readonly_fields = ['id']
+
+@admin.register(Permission)
+class PermissionAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'content_type', 'codename']
+    search_fields = ['name', 'codename']
+    list_filter = ['content_type']
     ordering = ['id']
     readonly_fields = ['id']
