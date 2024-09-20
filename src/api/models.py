@@ -77,6 +77,8 @@ class Issue(models.Model):
     def clean(self):
        if not self.project.contributors.filter(id=self.assigned_to.id).exists():
             raise ValidationError("The author of the issue must be a contributor to the project")
+    
+    
 
     def __str__(self):
         return self.title
