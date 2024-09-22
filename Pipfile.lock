@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "ac5f7e7f7b20f8a0ee78f6e6ec57025d57560365208b927ecabcda07433fae9a"
+            "sha256": "900a9d464f04788eab52eee7601c9b15541b98a504eac2ecf9ef09c696bbe505"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -57,6 +57,15 @@
             "markers": "python_version >= '3.10'",
             "version": "==5.1.1"
         },
+        "django-filter": {
+            "hashes": [
+                "sha256:c4852822928ce17fb699bcfccd644b3574f1a2d80aeb2b4ff4f16b02dd49dc64",
+                "sha256:d8ccaf6732afd21ca0542f6733b11591030fa98669f8d15599b358e24a2cd9c3"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.8'",
+            "version": "==24.3"
+        },
         "djangorestframework": {
             "hashes": [
                 "sha256:2b8871b062ba1aefc2de01f773875441a961fefbf79f5eed1e32b2f096944b20",
@@ -74,6 +83,15 @@
             "index": "pypi",
             "markers": "python_version >= '3.8'",
             "version": "==5.3.1"
+        },
+        "drf-nested-routers": {
+            "hashes": [
+                "sha256:2b846385ed95c9f17bf4242db3b264ac826b5af00dda6c737d3fe7cc7bf2c7db",
+                "sha256:3a8ec45a025c0f39188ec1ec415244beb875a6f4db87911a1f5a606d09b68c9f"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.8'",
+            "version": "==0.94.1"
         },
         "drf-yasg": {
             "hashes": [
@@ -247,12 +265,12 @@
         },
         "setuptools": {
             "hashes": [
-                "sha256:5f4c08aa4d3ebcb57a50c33b1b07e94315d7fc7230f7115e47fc99776c8ce308",
-                "sha256:95b40ed940a1c67eb70fc099094bd6e99c6ee7c23aa2306f4d2697ba7916f9c6"
+                "sha256:35ab7fd3bcd95e6b7fd704e4a1539513edad446c097797f2985e0e4b960772f2",
+                "sha256:d59a21b17a275fb872a9c3dae73963160ae079f1049ed956880cd7c09b120538"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.8'",
-            "version": "==74.1.2"
+            "version": "==75.1.0"
         },
         "six": {
             "hashes": [

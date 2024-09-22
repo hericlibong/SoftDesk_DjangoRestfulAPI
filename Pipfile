@@ -11,6 +11,8 @@ djangorestframework-simplejwt = "*"
 python-environ = "*"
 drf-yasg = "*"
 setuptools = "*"
+drf-nested-routers = "*"
+django-filter = "*"
 
 [dev-packages]
 
