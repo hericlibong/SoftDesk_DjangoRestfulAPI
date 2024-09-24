@@ -6,6 +6,8 @@ from .views import ProjectViewSet, ContributorViewSet, IssueViewSet, CommentView
 router = DefaultRouter()
 router.register(r'projects', ProjectViewSet, basename='project')
 router.register(r'contributors', ContributorViewSet, basename='contributor')
+router.register(r'issues', IssueViewSet, basename='issue')
+router.register(r'comments', CommentViewSet, basename='comment')
 
 projects_router = routers.NestedDefaultRouter(router, r'projects', lookup='project')
 projects_router.register(r'issues', IssueViewSet, basename='project-issues')

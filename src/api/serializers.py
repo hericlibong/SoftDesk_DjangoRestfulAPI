@@ -47,6 +47,13 @@ class IssueSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'comments': {'required': False}
         }
+    
+    def validate_assigned_to(self, value):
+        # Vérifier que le contributeur assigné fait partie des contributeurs du projet
+        if not self.context['request'].project.contributors.filter(user=value).exists():
+            raise serializers.ValidationError("Le contributeur assigné doit être un contributeur du projet")
+        return value
+
 
 
 # Serializer for Project model
