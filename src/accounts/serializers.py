@@ -6,7 +6,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'password', 'email', 'age', 'can_be_contacted', 
                 'can_be_data_shared', 'groups', 'user_permissions']
-        read_only_fields = ['id']
+        read_only_fields = ['id', 'groups', 'user_permissions']
         extra_kwargs = {
             'groups': {'required': False},
             'user_permissions': {'required': False}, 

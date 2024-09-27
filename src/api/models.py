@@ -67,8 +67,8 @@ class Issue(models.Model):
     title = models.CharField(max_length=100, help_text="Issue title")
     description = models.TextField(help_text="Issue description")
     project = models.ForeignKey(Project, related_name='issues', on_delete=models.CASCADE, help_text="Project to which the issue belongs")
-    assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='assigned_issues', on_delete=models.CASCADE, help_text="User to whom the issue is assigned")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, help_text="Status of the issue")
+    assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, related_name='assigned_issues', on_delete=models.CASCADE, help_text="User to whom the issue is assigned")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default= 'todo', help_text="Status of the issue")
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, help_text="Priority of the issue")
     tag = models.CharField(max_length=20, choices=TAG_CHOICES, help_text="Tag of the issue")
     author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='authored_issues', on_delete=models.CASCADE, help_text="Author of the issue")
@@ -76,7 +76,9 @@ class Issue(models.Model):
 
     def clean(self):
        if not self.project.contributors.filter(id=self.assigned_to.id).exists():
-            raise ValidationError("The author of the issue must be a contributor to the project")
+            raise ValidationError("The assigned user must be a contributor to the project")
+       if self.assigned_to and not self.project.contributors.filter(id=self.assigned_to.id).exists():
+            raise ValidationError("The assigned user must be a contributor to the project")
     
     
 
@@ -90,3 +92,7 @@ class Comment(models.Model):
     issue = models.ForeignKey(Issue, related_name='comments', on_delete=models.CASCADE, help_text="Issue to which the comment belongs")
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, help_text="Author of the comment")
     created_time = models.DateTimeField(auto_now_add=True, help_text="Comment creation date")
+
+    def clean(self):
+        if not self.issue.project.contributors.filter(id=self.author.id).exists():
+                raise ValidationError("The author must be a contributor to the project's issue")
