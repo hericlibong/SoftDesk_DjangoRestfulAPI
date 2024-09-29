@@ -48,10 +48,26 @@ class IssueSerializer(serializers.ModelSerializer):
             'comments': {'required': False}
         }
     
+    # def validate_assigned_to(self, value):
+    #     # Vérifier que le contributeur assigné fait partie des contributeurs du projet
+    #     if not self.context['request'].project.contributors.filter(user=value).exists():
+    #         raise serializers.ValidationError("Le contributeur assigné doit être un contributeur du projet")
+    #     return value
+
     def validate_assigned_to(self, value):
-        # Vérifier que le contributeur assigné fait partie des contributeurs du projet
-        if not self.context['request'].project.contributors.filter(user=value).exists():
+        """
+        Vérifie que le contributeur assigné fait partie des contributeurs du projet.
+        - value: l'utilisateur assigné à l'issue
+        """
+        # Récupère le projet associé à l'instance actuelle de l'issue ou à partir des données initiales
+        project = self.instance.project if self.instance else self.initial_data['project']
+        
+        # Vérifie si l'utilisateur assigné fait partie des contributeurs du projet
+        if not project.contributors.filter(user=value).exists():
+            # Si l'utilisateur n'est pas un contributeur du projet, lève une erreur de validation
             raise serializers.ValidationError("Le contributeur assigné doit être un contributeur du projet")
+        
+        # Si l'utilisateur est un contributeur valide, retourne la valeur
         return value
 
 

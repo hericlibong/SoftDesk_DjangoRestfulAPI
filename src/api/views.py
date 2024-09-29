@@ -3,74 +3,112 @@ from .models import Project, Contributor, Issue, Comment
 from .serializers import (ProjectSerializer, ContributorSerializer, 
                           CommentSerializer, IssueSerializer)
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsAuthor, IsContributor, IsAuthorOrReadOnly
+from .permissions import IsAuthor, IsContributor
 
 
 class ProjectViewSet(ModelViewSet):
-    queryset = Project.objects.prefetch_related('contributors', 'issues')  # Précharge les relations
+    # Précharge les contributeurs et les problèmes associés pour optimiser les requêtes
+    queryset = Project.objects.prefetch_related('contributors', 'issues')
     serializer_class = ProjectSerializer
-    permission_classes = [IsAuthorOrReadOnly, IsAuthenticated]
-    ordering_fields = ['-created_time']
 
-    def perform_create(self, serializer):
-        if not self.request.user.is_authenticated:
-            raise PermissionError("You must be authenticated to create a project.")
-        serializer.save(author=self.request.user)
+    def get_permissions(self):
+        if self.action in ['create']:
+            permission_classes = [IsAuthenticated]
+        elif self.action in ['retrieve', 'list']:
+            permission_classes = [IsAuthenticated, IsContributor]
+        elif self.action in ['update', 'partial_update', 'destroy']:
+            permission_classes = [IsAuthenticated, IsAuthor]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
     
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 
 class ContributorViewSet(ModelViewSet):
-    queryset = Contributor.objects.all()
     serializer_class = ContributorSerializer
-    permission_classes = [IsContributor, IsAuthenticated]
 
     def get_queryset(self):
-        # Vérifie si 'project_pk' est présent dans les kwargs
+        # Récupère l'identifiant du projet à partir des arguments de l'URL
         project_id = self.kwargs.get('project_pk', None)
         if project_id:
-            # si oui, le projet est précisé et on filtre les contributeurs par projet
-            return Contributor.objects.filter(project__id=project_id)
-        else:
-            # sinon on retourne tous les contributeurs
+            return Contributor.objects.filter(project__id=project_id) 
+        else:  
             return Contributor.objects.all()
+        
+    def get_permissions(self):
+        # Si l'action est 'create' ou 'destroy' définir les permissions pour les utilisateurs authentifiés et les auteurs
+        if self.action in ['create', 'destroy']:
+            permission_classes = [IsAuthenticated, IsAuthor]
+        elif self.action in ['retrieve', 'list']:  # Si l'action est 'retrieve' ou 'list', définir les permissions pour les utilisateurs authentifiés et les contributeurs du projet
+            permission_classes = [IsAuthenticated, IsContributor]
+        else:
+            # Pour toutes les autres actions, définir les permissions pour les utilisateurs authentifiés et les contributeurs du projet
+            permission_classes = [IsAuthenticated]
+        # Retourner une instance de chaque classe de permission
+        return [permission() for permission in permission_classes]
     
 
+
 class IssueViewSet(ModelViewSet):
-    queryset = Issue.objects.all()
     serializer_class = IssueSerializer
-    permission_classes = [IsAuthorOrReadOnly]
-
-    def perform_create(self, serializer):
-        # Assigner l'utilisateur authentifié comme auteur
-        serializer.save(author=self.request.user)
 
     def get_queryset(self):
-        # Vérifie si 'project_pk' est présent dans les kwargs
         project_id = self.kwargs.get('project_pk', None)
+        contributor_id = self.kwargs.get('contributor_pk', None)
         if project_id:
-            # si oui, le projet est précisé et on filtre les contributeurs par projet
             return Issue.objects.filter(project__id=project_id)
+        elif contributor_id:
+            return Issue.objects.filter(assigned_to__id=contributor_id)
         else:
-            # sinon on retourne tous les contributeurs
             return Issue.objects.all()
-
-
-class CommentViewSet(ModelViewSet): 
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-    permission_classes = [IsAuthorOrReadOnly]
-
+        
+    def get_permissions(self):
+        if self.action == 'create':
+            permission_classes = [IsAuthenticated, IsContributor]
+        elif self.action in ['retrieve', 'list']:
+            permission_classes = [IsAuthenticated, IsContributor]
+        elif self.action in ['update', 'partial_update', 'destroy']:
+            permission_classes = [IsAuthenticated, IsAuthor]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+    
     def perform_create(self, serializer):
-        if not self.request.user.is_authenticated:
-            raise PermissionError("You must be authenticated to create a project.")
-        serializer.save(author=self.request.user)
+        project_id = self.kwargs.get('project_pk')
+        if project_id:
+            project = Project.objects.get(id=project_id)
+            serializer.save(author=self.request.user, project=project)
+        else:
+            serializer.save(author=self.request.user)
+
+
+class CommentViewSet(ModelViewSet):
+    serializer_class = CommentSerializer
 
     def get_queryset(self):
-        # Vérifie si 'issue_pk' est présent dans les kwargs
-        issue_id = self.kwargs.get('issue_pk', None)
+        issue_id = self.kwargs.get('issue_pk')
         if issue_id:
-            # si oui, l'issue est précisée et on filtre les commentaires par issue
             return Comment.objects.filter(issue__id=issue_id)
         else:
-            # sinon on retourne tous les commentaires
-            return self.queryset
+            return Comment.objects.all()
+
+    def get_permissions(self):
+        if self.action == 'create':
+            permission_classes = [IsAuthenticated, IsContributor]
+        elif self.action in ['retrieve', 'list']:
+            permission_classes = [IsAuthenticated, IsContributor]
+        elif self.action in ['update', 'partial_update', 'destroy']:
+            permission_classes = [IsAuthenticated, IsAuthor]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
+    def perform_create(self, serializer):
+        issue_id = self.kwargs.get('issue_pk')
+        if issue_id:
+            issue = Issue.objects.get(id=issue_id)
+            serializer.save(author=self.request.user, issue=issue)
+        else:
+            serializer.save(author=self.request.user)
