@@ -34,7 +34,7 @@ class IssueInline(admin.TabularInline):
    
 # ProjectAdmin with Issue and Contributor inlines
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ['title', 'type', 'author']
+    list_display = ['title', 'id', 'type', 'author']
     fieldsets = [
         (None, {'fields': ['title', 'description', 'type', 'author']}),
     ]

@@ -1,53 +1,63 @@
+from rest_framework.permissions import BasePermission, SAFE_METHODS
+from .models import Project, Contributor
 
-from rest_framework.permissions import BasePermission
-from .models import Contributor, Issue, Comment
-
-
-class IsAuthor(BasePermission):
+class IsAuthorOrReadOnly(BasePermission):
     """
-    Permisssion qui permet à l'auteur d'un objet d'y accéder 
-    
+    Custom permission to only allow authors of a resource to edit or delete it.
+    All users can view the resource if they have the appropriate access.
     """
-    message = "Vous devez être l'auteur de cette ressource pour y accéder"
 
     def has_object_permission(self, request, view, obj):
-        return obj.author == request.user
-    
 
-class IsContributor(BasePermission):
+        # Read permissions are allowed to any request, so we'll always allow GET, HEAD or OPTIONS requests.
+        if request.method in SAFE_METHODS:
+            return True
+        
+        # Write permissions are only allowed to the author of the object.
+        return obj.author == request.user or request.user.is_staff
+
+
+class IsContributorOrAuthor(BasePermission):
+    """Permet uniquement aux administrateurs, aux contributeurs ou à l'auteur d'accéder aux ressources du projet."""
+
+    def has_object_permission(self, request, view, obj):
+        # Les utilisateurs administrateurs peuvent accéder à toutes les ressources
+        if request.user.is_staff:
+            return True
+        
+       
+        # Vérifie si l'objet a un attribut 'author' et si l'auteur de l'objet est l'utilisateur actuel
+        if hasattr(obj, 'author') and obj.author == request.user:
+            # Si c'est le cas, l'utilisateur a la permission d'accéder à l'objet
+            return True
+
+        
+        # Vérifie si l'objet est une instance de la classe Project
+        if isinstance(obj, Project):
+            project = obj
+        # Si l'objet a un attribut 'project', assigne cet attribut à la variable project
+        elif hasattr(obj, 'project'):
+            project = obj.project
+        # Si aucune des conditions précédentes n'est remplie, retourne False
+        else:
+            return False  
+
+        # Seuls les contributeurs ou l'auteur de l'objet peuvent accéder à la ressource
+        # return obj.author == request.user or request.user in obj.contributors.all()
+        return Contributor.objects.filter(user=request.user, project=project).exists()
+
+class IsAuthenticatedAndContributor(BasePermission):
     """
-    Permission qui permet à un contributeur d'accéder aux projets, issues et commentaires.
+    Permission to check if a user is authenticated and is a contributor to the project.
     """
-    message = "Vous devez être contributeur de ce projet pour accéder à cette ressource."
 
     def has_permission(self, request, view):
-        project_id = (
-            view.kwargs.get('project_pk') or
-            self.get_project_id_from_issue(view) or
-            self.get_project_id_from_comment(view)
-        )
-        if not project_id:
+        # Check if the user is authenticated
+        if not request.user.is_authenticated:
             return False
-        return Contributor.objects.filter(project_id=project_id, user=request.user).exists()
 
-    def get_project_id_from_issue(self, view):
-        issue_id = view.kwargs.get('issue_pk') or view.kwargs.get('issue_id')
-        if issue_id:
-            try:
-                issue = Issue.objects.get(id=issue_id)
-                return issue.project.id
-            except Issue.DoesNotExist:
-                return None
-        return None
+        # Retrieve the project from the request (adjust depending on your view setup)
+        project = view.get_object()
 
-    def get_project_id_from_comment(self, view):
-        comment_id = view.kwargs.get('pk')
-        if comment_id:
-            try:
-                comment = Comment.objects.get(id=comment_id)
-                return comment.issue.project.id
-            except Comment.DoesNotExist:
-                return None
-        return None
-
-    
+        # Check if the user is a contributor
+        return request.user in project.contributors.all()

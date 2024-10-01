@@ -5,13 +5,14 @@ from django.contrib.auth import get_user_model
 
 # Serializer for Contributor model
 class ContributorSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField()
-    # project = serializers.StringRelatedField()
+    contributor_username = serializers.CharField(source='user.username', read_only=True)
+    user = serializers.PrimaryKeyRelatedField(queryset=get_user_model().objects.all())
+
 
     class Meta:
         model = Contributor
-        fields = ['id', 'user']
-        read_only_fields = ['id']
+        fields = ['id', 'user', 'contributor_username']
+        read_only_fields = ['id', 'contributor_username']
 
 
 # Serializer for Comment model
