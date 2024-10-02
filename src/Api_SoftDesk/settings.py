@@ -140,7 +140,7 @@ AUTH_USER_MODEL = 'accounts.User'
 REST_FRAMEWORK = {
     # pagination
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 4,
+    'PAGE_SIZE': 10,
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -153,6 +153,6 @@ REST_FRAMEWORK = {
 
 # Simple JWT settings
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=180),  # Durée de vie du token d'accès
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Durée de vie du token d'accès
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),      # Durée de vie du token de rafraîchissement
 }
