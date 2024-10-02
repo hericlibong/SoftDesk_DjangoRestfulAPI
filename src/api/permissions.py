@@ -1,6 +1,7 @@
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 from .models import Project, Contributor
 
+
 class IsAuthorOrReadOnly(BasePermission):
     """
     Custom permission to only allow authors of a resource to edit or delete it.
@@ -12,7 +13,7 @@ class IsAuthorOrReadOnly(BasePermission):
         # Read permissions are allowed to any request, so we'll always allow GET, HEAD or OPTIONS requests.
         if request.method in SAFE_METHODS:
             return True
-        
+
         # Write permissions are only allowed to the author of the object.
         return obj.author == request.user or request.user.is_staff
 
@@ -72,6 +73,7 @@ class IsContributorOrAuthor(BasePermission):
             return True
 
         return Contributor.objects.filter(project=project, user=request.user).exists()
+
 
 class IsAuthenticatedAndContributor(BasePermission):
     """

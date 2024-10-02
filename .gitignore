@@ -1,3 +1,5 @@
 .venv/
 src/Api_SoftDesk/.env
 src/api/filters.py
+src/.flake8
+src/flake-report/

@@ -17,6 +17,7 @@ class UserAdmin(admin.ModelAdmin):
     ordering = ['id']
     readonly_fields = ['id']
 
+
 @admin.register(Permission)
 class PermissionAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'content_type', 'codename']

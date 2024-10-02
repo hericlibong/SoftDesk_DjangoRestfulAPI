@@ -13,6 +13,7 @@ drf-yasg = "*"
 setuptools = "*"
 drf-nested-routers = "*"
 django-filter = "*"
+flake8-html = "*"
 
 [dev-packages]
 

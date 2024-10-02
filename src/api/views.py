@@ -1,16 +1,16 @@
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 from .models import Project, Issue, Comment, Contributor
-from rest_framework import serializers
 from .serializers import ProjectSerializer, IssueSerializer, CommentSerializer, ContributorSerializer
 from .permissions import IsAuthorOrReadOnly, IsContributorOrAuthor
 
+
 class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
-    permission_classes = [IsAuthenticated, IsContributorOrAuthor] 
+    permission_classes = [IsAuthenticated, IsContributorOrAuthor]
 
     def get_queryset(self):
         user = self.request.user
@@ -25,18 +25,18 @@ class ProjectViewSet(viewsets.ModelViewSet):
             return Project.objects.filter(
                 Q(author=user) | Q(id__in=contributed_project_ids)
             ).distinct()
-    
+
     def get_permissions(self):
         if self.action in ['retrieve', 'list']:
             permission_classes = [IsAuthenticated, IsContributorOrAuthor]
         elif self.action in ['update', 'partial_update', 'destroy']:
-            permission_classes = [IsAuthenticated, IsAuthorOrReadOnly]    
+            permission_classes = [IsAuthenticated, IsAuthorOrReadOnly]
         elif self.action == 'create':
             permission_classes = [IsAuthenticated]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
-    
+
     def get_object(self):
         # Récupérer le projet indépendament des permissions
         project = get_object_or_404(Project, pk=self.kwargs.get('pk'))
@@ -48,7 +48,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-  
+
 
 class IssueViewSet(viewsets.ModelViewSet):
     serializer_class = IssueSerializer
@@ -90,8 +90,8 @@ class IssueViewSet(viewsets.ModelViewSet):
             project = Project.objects.get(pk=project_id)
             context['project'] = project
         return context
-    
-        
+
+
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated, IsContributorOrAuthor]
@@ -142,8 +142,6 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer.save(author=user, issue=issue)
 
 
-
-
 class ContributorViewSet(viewsets.ModelViewSet):
     serializer_class = ContributorSerializer
     permission_classes = [IsAuthenticated, IsContributorOrAuthor]
@@ -153,7 +151,7 @@ class ContributorViewSet(viewsets.ModelViewSet):
         project_id = self.kwargs.get('project_pk')
 
         if user.is_staff:
-             return Contributor.objects.filter(project__id=project_id)
+            return Contributor.objects.filter(project__id=project_id)
 
         if project_id:
             # Cas où le project_id est spécifié dans l'URL

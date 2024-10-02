@@ -37,7 +37,8 @@ class UserViewSet(ModelViewSet):
 
         user.delete()
 
-        return Response({"message": "Les données de l'utilisateur ont été supprimées avec succès."}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "Les données de l'utilisateur ont été supprimées avec succès."},
+                        status=status.HTTP_204_NO_CONTENT)
 
     def destroy_self(self, request, *args, **kwargs):
         """
@@ -53,5 +54,3 @@ class UserViewSet(ModelViewSet):
         user.delete()
 
         return Response({"message": "Votre compte a été supprimé avec succès."}, status=status.HTTP_204_NO_CONTENT)
-
-        

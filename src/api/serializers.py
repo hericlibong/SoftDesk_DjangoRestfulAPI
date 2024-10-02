@@ -8,7 +8,6 @@ class ContributorSerializer(serializers.ModelSerializer):
     contributor_username = serializers.CharField(source='user.username', read_only=True)
     user = serializers.PrimaryKeyRelatedField(queryset=get_user_model().objects.all())
 
-
     class Meta:
         model = Contributor
         fields = ['id', 'user', 'contributor_username']
@@ -58,15 +57,14 @@ class IssueSerializer(serializers.ModelSerializer):
         project = self.context.get('project')
         if not project:
             raise serializers.ValidationError("Le projet n'est pas disponible dans le contexte.")
-        
+
         # Vérifier si l'utilisateur assigné fait partie des contributeurs du projet
         if not Contributor.objects.filter(project=project, user=value).exists():
             # Si l'utilisateur n'est pas un contributeur du projet, lever une erreur de validation
             raise serializers.ValidationError("Le contributeur assigné doit être un contributeur du projet")
-        
+
         # Si l'utilisateur est un contributeur valide, retourner la valeur
         return value
-
 
 
 # Serializer for Project model

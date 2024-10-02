@@ -38,7 +38,3 @@ urlpatterns = [
     path('', include(issues_comments_router.urls)),
     path('', include(projects_issues_comments_router.urls)),  # Inclusion du nouveau routeur
 ]
-
-
-
-
