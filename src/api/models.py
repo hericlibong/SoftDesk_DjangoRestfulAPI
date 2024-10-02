@@ -40,6 +40,7 @@ class Contributor(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['user', 'project'], name='unique_contributor')
         ]
+    
 
     def __str__(self):
         return f"{self.user.username} - {self.project.title} "

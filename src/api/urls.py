@@ -1,5 +1,3 @@
-# api/urls.py
-
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
@@ -28,12 +26,19 @@ contributors_issues_router.register(r'issues', IssueViewSet, basename='contribut
 issues_comments_router = routers.NestedDefaultRouter(router, r'issues', lookup='issue')
 issues_comments_router.register(r'comments', CommentViewSet, basename='issue-comments')
 
+# Routeur imbriqué pour les commentaires par issue dans le contexte d'un projet
+projects_issues_comments_router = routers.NestedDefaultRouter(projects_issues_router, r'issues', lookup='issue')
+projects_issues_comments_router.register(r'comments', CommentViewSet, basename='project-issues-comments')
+
 urlpatterns = [
     path('', include(router.urls)),
     path('', include(projects_contributors_router.urls)),
     path('', include(projects_issues_router.urls)),
     path('', include(contributors_issues_router.urls)),
     path('', include(issues_comments_router.urls)),
+    path('', include(projects_issues_comments_router.urls)),  # Inclusion du nouveau routeur
 ]
+
+
 
 
