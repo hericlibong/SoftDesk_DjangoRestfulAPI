@@ -1,0 +1,13 @@
+# .github/dependabot.yml
+version: 2
+updates:
+  - package-ecosystem: "pipenv" # Spécifie que Dependabot gère pipenv
+    directory: "/" # Le répertoire où se trouve le fichier Pipfile, ici à la racine
+    schedule:
+      interval: "weekly" # Vérification des mises à jour chaque semaine
+    open-pull-requests-limit: 5 # Limite du nombre de PR ouvertes
+    commit-message:
+      prefix: "dep-upgrade" # Préfixe des messages de commit
+    ignore:
+      # Exemple pour ignorer une mise à jour spécifique, ici pour Django
+      - dependency-name: "django"
