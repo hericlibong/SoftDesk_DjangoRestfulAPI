@@ -1,7 +1,20 @@
+
 # SoftDesk API
 
+
 ## Présentation
-(A compléter)
+Bienvenue dans l'API SoftDesk. Ce projet est une plateforme de gestion de projets permettant aux utilisateurs de créer des projets, des problèmes (issues), des commentaires, et de collaborer avec des contributeurs.
+
+## Table des matières
+
+- [Installation](#installation)
+- [Accès API](#accès-api)
+- [Authentification](#authentification)
+- [Principaux Endpoints](#principaux-endpoints)
+- [Documentation API](#documentation-api)
+- [Tests](#tests)
+- [Contribuer](#contribuer)
+
 
 ## Prérequis
 
@@ -10,30 +23,31 @@ Assurez-vous d'avoir les éléments suivants installés sur votre système :
 - Version `Python` >= [Python 3.10](https://www.python.org/downloads/)
 - [Pipenv](https://pipenv.pypa.io/en/latest/) (pour la gestion des dépendances)
 
+
+
 ## Installation
 
-Suivez les étapes ci-dessous pour configurer le projet sur votre machine locale.
+Pour installer et configurer ce projet sur votre machine locale :
 
-1. **Clonez le dépôt** :
+1. Clonez le dépôt GitHub :
 
-   ```bash
-   git clone <URL_DU_DEPOT>
-   cd nom_du_dossier_du_projet
+```bash
+git clone <url_du_repository>
+cd softdesk_api
    ```
 
-2. **Créez un environnement virtuel avec Pipenv :**
+2. Installez les dépendances avec pipenv :
 
-    ```bash
-    pipenv --python <your version>
-    ```
 
-3. **Installez les dépendances:**
+```bash
+pipenv install --dev
+```
 
-    Utilisez la commande suivante pour installer toutes les dépendances nécessaires définies dans le Pipfile :
+3. Activez l'environnement virtuel :
 
-    ```shell
-    pipenv install
-    ```
+```bash
+pipenv shell
+```
 
 ## Démarrage
 
@@ -57,6 +71,173 @@ Suivez les étapes ci-dessous pour configurer le projet sur votre machine locale
     Sauvegarder les modifications : Enregistrez le fichier `.env` après avoir effectué les modifications nécessaires.
 
     Ce fichier ne doit pas être ajouté à votre dépôt Git. Assurez-vous qu'il est bien listé dans votre .gitignore pour éviter toute exposition accidentelle de vos configurations.
+
+
+4. Démarrez le serveur de développement local :
+
+```bash
+python manage.py runserver
+```
+
+Votre application devrait maintenant être disponible à l'adresse : http://127.0.0.1:8000/
+
+
+
+
+## Accès API
+
+L'API SoftDesk est disponible à l'adresse `/api/v1/`. L'accès à certains endpoints nécessite un token d'authentification (JWT).
+Obtenir un token d'authentification
+
+### Accès administrateur préconfiguré
+
+Pour tester l'API avec des privilèges d'administrateur, vous pouvez utiliser les identifiants suivants :
+
+- **Nom d'utilisateur** : `opc-admin`
+- **Mot de passe** : `opc-password`
+
+Ces identifiants vous permettront d'accéder à toutes les fonctionnalités administratives de l'API sans avoir à créer un superuser.
+
+---
+
+### Obtention d'un Token JWT
+
+#### 1. Obtenir un Token JWT
+
+Utilisez le endpoint suivant pour obtenir un token JWT après vous être authentifié avec vos identifiants :
+
+- **URL** : `/api/v1/token/`
+- **Méthode** : `POST`
+- **Données** :
+
+```json
+{
+    "username": "votre_nom_utilisateur",
+    "password": "votre_mot_de_passe"
+}
+```
+
+La réponse vous fournira deux tokens : un access token et un refresh token.
+
+### 2. Rafraîchir votre Token
+
+ 
+ Utilisez le endpoint suivant pour rafraîchir votre token JWT en utilisant le refresh token obtenu précédemment :
+
+- **URL** : `/api/v1/token/refresh/`
+- **Données** :
+
+{
+  "refresh": "votre_refresh_token"
+}
+## Authentification
+
+L'authentification se fait via des tokens JWT. Vous devez d'abord obtenir un token en utilisant vos identifiants, puis utiliser ce token pour accéder aux endpoints protégés.
+
+### 1. Obtenir un Token JWT
+
+Utilisez le endpoint suivant pour obtenir un token JWT après vous être authentifié avec vos identifiants :
+
+- **URL** : `/api/v1/token/`
+- **Méthode** : `POST`
+- **Données** :
+
+```json
+{
+    "username": "votre_nom_utilisateur",
+    "password": "votre_mot_de_passe"
+}
+```
+
+La réponse vous fournira deux tokens : un access token et un refresh token.
+
+### 2. Rafraîchir votre Token
+
+Utilisez le endpoint suivant pour rafraîchir votre token JWT en utilisant le refresh token obtenu précédemment :
+
+- **URL** : `/api/v1/token/refresh/`
+- **Méthode** : `POST`
+- **Données** :
+
+```json
+{
+    "refresh": "votre_refresh_token"
+}
+```
+
+La réponse vous fournira un nouveau access token.
+
+## Principaux Endpoints
+
+Voici une liste des principaux endpoints de l'API SoftDesk :
+
+### Projets
+
+- **Liste des projets**
+  - **URL** : `/api/v1/projects/`
+  - **Méthode** : `GET`
+  - **Description** : Récupère la liste de tous les projets.
+
+- **Créer un projet**
+  - **URL** : `/api/v1/projects/`
+  - **Méthode** : `POST`
+  - **Description** : Crée un nouveau projet.
+  - **Données** :
+
+  ```json
+  {
+      "title": "Nom du projet",
+      "description": "Description du projet"
+  }
+  ```
+
+### Issues
+
+- **Liste des issues**
+  - **URL** : `/api/v1/projects/{project_id}/issues/`
+  - **Méthode** : `GET`
+  - **Description** : Récupère la liste de toutes les issues pour un projet donné.
+
+- **Créer une issue**
+  - **URL** : `/api/v1/projects/{project_id}/issues/`
+  - **Méthode** : `POST`
+  - **Description** : Crée une nouvelle issue pour un projet donné.
+  - **Données** :
+
+  ```json
+  {
+      "title": "Titre de l'issue",
+      "description": "Description de l'issue",
+      "tag": "bug",
+      "priority": "high",
+      "status": "open"
+  }
+  ```
+
+### Commentaires
+
+- **Liste des commentaires**
+  - **URL** : `/api/v1/issues/{issue_id}/comments/`
+  - **Méthode** : `GET`
+  - **Description** : Récupère la liste de tous les commentaires pour une issue donnée.
+
+- **Créer un commentaire**
+  - **URL** : `/api/v1/issues/{issue_id}/comments/`
+  - **Méthode** : `POST`
+  - **Description** : Crée un nouveau commentaire pour une issue donnée.
+  - **Données** :
+
+  ```json
+  {
+      "description": "Contenu du commentaire"
+  }
+  ```
+
+
+
+
+
+
 
 
 3. **Activez l'environnement virtuel :**
