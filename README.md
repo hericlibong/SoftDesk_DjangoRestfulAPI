@@ -33,7 +33,7 @@ Pour installer et configurer ce projet sur votre machine locale :
 
 ```bash
 git clone <url_du_repository>
-cd softdesk_api
+cd SoftDesk_DjangoRestfulAPI
    ```
 
 2. Installez les dépendances avec pipenv :
@@ -53,41 +53,54 @@ pipenv shell
 
 1. **Modifier le fichier `.env`**
 
-    Renommer le fichier : Renommez le fichier `.env.sample` en `.env` dans le répertoire de votre projet.
+Aller dans la racine du projet : 
 
-    Ouvrir le fichier `.env` : Ouvrez le fichier `.env` avec un éditeur de texte.
+```bash
+cd src/ApiSoftDesk/
+```
 
-    Configurer la clé secrète : Remplacez <your_secret_key_here> par une clé secrète Django forte et unique.
+- Renommer le fichier : Renommez le fichier `.env.sample` en `.env` dans le répertoire de votre projet.
+
+- Ouvrir le fichier `.env` : Ouvrez le fichier `.env` avec un éditeur de texte.
+
+- Configurer la clé secrète : Remplacez <your_secret_key_here> par une clé secrète Django forte et unique.
 
 
 2. **Générer une clé secrète Django** : 
     
 
-    Vous pouvez utiliser des outils en ligne tels que [Djecrety](https://djecrety.ir/). Ce site génère une clé secrète Django sécurisée que vous pouvez simplement copier et coller dans votre fichier `.env`.
+    - Vous pouvez utiliser des outils en ligne tels que [Djecrety](https://djecrety.ir/). 
+    Ce site génère une clé secrète Django sécurisée que vous pouvez simplement copier et coller dans votre fichier `.env`.
 
 
-    Assurez-vous que les valeurs des autres variables, comme <DEBUG> et <ALLOWED_HOSTS>, sont appropriées pour votre environnement de développement.
+    - Assurez-vous que les valeurs des autres variables, comme <DEBUG> et <ALLOWED_HOSTS>, sont appropriées pour votre environnement de développement.
 
-    Sauvegarder les modifications : Enregistrez le fichier `.env` après avoir effectué les modifications nécessaires.
+    - Sauvegarder les modifications : Enregistrez le fichier `.env` après avoir effectué les modifications nécessaires.
 
-    Ce fichier ne doit pas être ajouté à votre dépôt Git. Assurez-vous qu'il est bien listé dans votre .gitignore pour éviter toute exposition accidentelle de vos configurations.
+    - Ce fichier ne doit pas être ajouté à votre dépôt Git. Assurez-vous qu'il est bien listé dans votre .gitignore pour éviter toute exposition accidentelle de vos configurations.
 
 
 4. Démarrez le serveur de développement local :
 
+Dans src : 
+
 ```bash
+
 python manage.py runserver
 ```
 
 Votre application devrait maintenant être disponible à l'adresse : http://127.0.0.1:8000/
 
 
-
-
 ## Accès API
 
 L'API SoftDesk est disponible à l'adresse `/api/v1/`. L'accès à certains endpoints nécessite un token d'authentification (JWT).
 Obtenir un token d'authentification
+
+### Outil de test recommandé
+
+Pour tester les requêtes et interactions avec l'API, Postman est recommandé. Vous pouvez télécharger et configurer Postman ici : 
+[Postman](https://www.postman.com/downloads/)
 
 ### Accès administrateur préconfiguré
 
@@ -128,42 +141,9 @@ La réponse vous fournira deux tokens : un access token et un refresh token.
 - **Données** :
 
 {
-  "refresh": "votre_refresh_token"
+ "refresh": "votre_refresh_token"
 }
-## Authentification
 
-L'authentification se fait via des tokens JWT. Vous devez d'abord obtenir un token en utilisant vos identifiants, puis utiliser ce token pour accéder aux endpoints protégés.
-
-### 1. Obtenir un Token JWT
-
-Utilisez le endpoint suivant pour obtenir un token JWT après vous être authentifié avec vos identifiants :
-
-- **URL** : `/api/v1/token/`
-- **Méthode** : `POST`
-- **Données** :
-
-```json
-{
-    "username": "votre_nom_utilisateur",
-    "password": "votre_mot_de_passe"
-}
-```
-
-La réponse vous fournira deux tokens : un access token et un refresh token.
-
-### 2. Rafraîchir votre Token
-
-Utilisez le endpoint suivant pour rafraîchir votre token JWT en utilisant le refresh token obtenu précédemment :
-
-- **URL** : `/api/v1/token/refresh/`
-- **Méthode** : `POST`
-- **Données** :
-
-```json
-{
-    "refresh": "votre_refresh_token"
-}
-```
 
 La réponse vous fournira un nouveau access token.
 
@@ -187,7 +167,8 @@ Voici une liste des principaux endpoints de l'API SoftDesk :
   ```json
   {
       "title": "Nom du projet",
-      "description": "Description du projet"
+      "description": "Description du projet",
+      "type": "ios"
   }
   ```
 
@@ -205,13 +186,16 @@ Voici une liste des principaux endpoints de l'API SoftDesk :
   - **Données** :
 
   ```json
-  {
-      "title": "Titre de l'issue",
-      "description": "Description de l'issue",
-      "tag": "bug",
-      "priority": "high",
-      "status": "open"
-  }
+    {
+    "title": "Nouvelle Issue",
+    "description": "Description de l'issue",
+    "tag": "bug",
+    "priority": "high",
+    "status": "todo",
+    "assigned_to": 23,
+    "author":22,
+    "project":25
+    }
   ```
 
 ### Commentaires
@@ -236,32 +220,17 @@ Voici une liste des principaux endpoints de l'API SoftDesk :
 
 
 
-
-
-
-
-3. **Activez l'environnement virtuel :**
-
-    Avant de démarrer le projet, vous devez activer l'environnement virtuel :
-
-    ```
-    pipenv shell
-    ```
-
-4. **Lancez le serveur Django :**
-
-    Une fois l'environnement activé, vous pouvez démarrer le serveur de développement :
-
-    ```
-    python manage.py runserver
-    ```
-
-Le serveur sera accessible à l'adresse http://127.0.0.1:8000/.
-
-
 ## Utilisation et Documentation
 
-Description de l'utilisation de l'API
+La documentation complète de l'API est disponible via les interfaces Swagger et Redoc :
+
+- Swagger UI : Swagger | http://127.0.0.1:8000/swagger/
+- Redoc : Redoc  | http://127.0.0.1:8000/redoc/
+
+
+
+
+Ces interfaces vous permettent d'explorer tous les endpoints disponibles et de tester les différentes fonctionnalités directement via une interface interactive.
 
 ## Contributions
 
