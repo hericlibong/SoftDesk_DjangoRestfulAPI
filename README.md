@@ -19,10 +19,8 @@ Bienvenue dans l'API SoftDesk. Ce projet est une plateforme de gestion de projet
 ## Prérequis
 
 Assurez-vous d'avoir les éléments suivants installés sur votre système :
-
-- Version `Python` >= [Python 3.10](https://www.python.org/downloads/)
-- [Pipenv](https://pipenv.pypa.io/en/latest/) (pour la gestion des dépendances)
-
+- [Version Python 3.12.6 (ou compatible)](https://www.python.org/downloads/release/python-3126/)
+- [Pipenv (pour la gestion des dépendances)](https://pipenv.pypa.io/en/latest/)
 
 
 ## Installation
