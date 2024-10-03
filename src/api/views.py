@@ -17,6 +17,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         if user.is_staff:
             # Les administrateurs voient tous les projets
             return Project.objects.all()
+            # return Project.objects.select_related('author').prefetch_related('contributor').all()
         else:
             # Les utilisateurs voient les projets dont ils sont auteurs ou contributeurs
             # Récupérer les IDs des projets auxquels l'utilisateur contribue
@@ -25,6 +26,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
             return Project.objects.filter(
                 Q(author=user) | Q(id__in=contributed_project_ids)
             ).distinct()
+            # return Project.objects.select_related('author').prefetch_related('contributor').filter(
+            #     Q(author=user) | Q(id__in=contributed_project_ids)
+            # ).distinct()
 
     def get_permissions(self):
         if self.action in ['retrieve', 'list']:
@@ -40,6 +44,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def get_object(self):
         # Récupérer le projet indépendament des permissions
         project = get_object_or_404(Project, pk=self.kwargs.get('pk'))
+        # project = get_object_or_404(
+        #     Project.objects.select_related('author').prefetch_related('contributor'),
+        #     pk=self.kwargs.get('pk')
+        # )
 
         # Vérifier les permissions sur l'objet
         self.check_object_permissions(self.request, project)

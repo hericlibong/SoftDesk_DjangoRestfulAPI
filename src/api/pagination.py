@@ -4,7 +4,7 @@ from rest_framework.response import Response
 
 class FlexiblePageNumberPagination(PageNumberPagination):
     """Personnaliser la réponse pour inclure les détails de pagination"""
-    
+
     # Taille de la page par défaut
     page_size = 4
 

@@ -24,6 +24,13 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ['id', 'description', 'author', 'created_time', 'issue']
         read_only_fields = ['id', 'author', 'created_time', 'issue']
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        # Nettoyer les retours à la ligne
+        representation['description'] = representation['description'].replace(
+            '\r\n', ' ').replace('\n', ' ').replace('\r', ' ')
+        return representation
+
 
 # Serializer for Issue model
 class IssueSerializer(serializers.ModelSerializer):
