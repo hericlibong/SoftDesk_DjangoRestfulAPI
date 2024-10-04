@@ -43,7 +43,8 @@ class IssueSerializer(serializers.ModelSerializer):
     author_name = serializers.CharField(source='author.username', read_only=True)
     author = serializers.PrimaryKeyRelatedField(queryset=get_user_model().objects.all())
 
-    comments = CommentSerializer(many=True, read_only=True)
+    # comments = CommentSerializer(many=True, read_only=True)
+    comments = serializers.SerializerMethodField()
 
     class Meta:
         model = Issue
@@ -73,6 +74,13 @@ class IssueSerializer(serializers.ModelSerializer):
         # Si l'utilisateur est un contributeur valide, retourner la valeur
         return value
 
+    def get_comments(self, obj):
+        """
+        Récupère et renvoie uniquement les descriptions des commentaires.
+        """
+        comments = Comment.objects.filter(issue=obj)
+        return [{'id': comment.id, 'created_time': comment.created_time} for comment in comments]
+
 
 # Serializer for Project model
 class ProjectSerializer(serializers.ModelSerializer):
@@ -82,7 +90,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     contributors = serializers.SerializerMethodField()
 
     # Sérialisation des issues associées
-    issues = IssueSerializer(many=True, read_only=True)
+    issues = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
@@ -92,7 +100,29 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     def get_contributors(self, obj):
         """
-        Récupère et sérialise les contributeurs d'un projet donné.
+        Récupère et renvoie uniquement les noms des contributeurs.
         """
-        contributors = Contributor.objects.filter(project=obj)
-        return ContributorSerializer(contributors, many=True).data
+        contributors = Contributor.objects.filter(project=obj).select_related('user')
+        # return ContributorSerializer(contributors, many=True).data
+        return [{'id': contributor.id, 'name': contributor.user.username, 'user_id': contributor.user.id}
+                for contributor in contributors]
+
+    def get_issues(self, obj):
+        """
+        Récupère et renvoie uniquement les titres des issues.
+        """
+        issues = Issue.objects.filter(project=obj).prefetch_related('comments')  # Précharger les commentaires
+        # return IssueSerializer(issues, many=True).data
+        # return [{'id': issue.id, 'title': issue.title, 'comments': issue.comments.count()} for issue in issues]
+        issues_data = []
+        for issue in issues:
+            issue_comments = [{'id': comment.id, 'description': comment.description,
+                               'author': comment.author.username} for comment in issue.comments.all()]
+            issues_data.append({
+                'id': issue.id,
+                'title': issue.title,
+                'author': issue.author.username,
+                'nb_comments': len(issue_comments),
+                'comments': issue_comments
+            })
+        return issues_data

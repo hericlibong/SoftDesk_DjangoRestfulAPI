@@ -6,6 +6,7 @@ from rest_framework.exceptions import PermissionDenied
 from .models import Project, Issue, Comment, Contributor
 from .serializers import ProjectSerializer, IssueSerializer, CommentSerializer, ContributorSerializer
 from .permissions import IsAuthorOrReadOnly, IsContributorOrAuthor
+from rest_framework.exceptions import NotAuthenticated
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -14,21 +15,29 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        if not user.is_authenticated:
+            if 'swagger' in self.request.path or 'redoc' in self.request.path:
+                return Project.objects.none()
+            else:
+                raise NotAuthenticated("Vous devez être authentifié pour accéder à cette ressource.")
+
         if user.is_staff:
             # Les administrateurs voient tous les projets
-            return Project.objects.all()
-            # return Project.objects.select_related('author').prefetch_related('contributor').all()
+            # Utilise prefetch_related pour optimiser les requêtes SQL
+            return Project.objects.prefetch_related(
+                'contributors',
+                'issues__comments').order_by('-created_time')
         else:
             # Les utilisateurs voient les projets dont ils sont auteurs ou contributeurs
             # Récupérer les IDs des projets auxquels l'utilisateur contribue
             contributed_project_ids = Contributor.objects.filter(user=user).values_list('project_id', flat=True)
             # Retourner les projets dont l'utilisateur est auteur ou contributeur
+
             return Project.objects.filter(
                 Q(author=user) | Q(id__in=contributed_project_ids)
-            ).distinct()
-            # return Project.objects.select_related('author').prefetch_related('contributor').filter(
-            #     Q(author=user) | Q(id__in=contributed_project_ids)
-            # ).distinct()
+            ).distinct().prefetch_related(
+                'contributors',
+                'issues__comments').order_by('-created_time')
 
     def get_permissions(self):
         if self.action in ['retrieve', 'list']:
@@ -43,11 +52,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     def get_object(self):
         # Récupérer le projet indépendament des permissions
-        project = get_object_or_404(Project, pk=self.kwargs.get('pk'))
-        # project = get_object_or_404(
-        #     Project.objects.select_related('author').prefetch_related('contributor'),
-        #     pk=self.kwargs.get('pk')
-        # )
+
+        project = get_object_or_404(
+            Project.objects.select_related('author').prefetch_related('contributor'),
+            pk=self.kwargs.get('pk')
+        )
 
         # Vérifier les permissions sur l'objet
         self.check_object_permissions(self.request, project)
@@ -64,11 +73,20 @@ class IssueViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        if not user.is_authenticated:
+            if 'swagger' in self.request.path or 'redoc' in self.request.path:
+                return Issue.objects.none()
+            else:
+                raise NotAuthenticated("Vous devez être authentifié pour accéder à cette ressource.")
+
         project_id = self.kwargs.get('project_pk')
 
         if project_id:
             # Cas où le project_id est spécifié dans l'URL
-            queryset = Issue.objects.filter(project__id=project_id)
+            queryset = Issue.objects.filter(project__id=project_id) \
+                .select_related('author', 'project') \
+                .prefetch_related('comments') \
+                .order_by('-created_time')
         else:
             # Cas où le project_id n'est pas spécifié
             # Récupérer les projets auxquels l'utilisateur a accès
@@ -78,7 +96,10 @@ class IssueViewSet(viewsets.ModelViewSet):
             ).distinct()
 
             # Récupérer les Issues de ces projets
-            queryset = Issue.objects.filter(project__in=user_projects)
+            queryset = Issue.objects.filter(project__in=user_projects) \
+                .select_related('author', 'project') \
+                .prefetch_related('comments') \
+                .order_by('-created_time')
 
         return queryset
 
@@ -95,7 +116,8 @@ class IssueViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         project_id = self.kwargs.get('project_pk')
         if project_id:
-            project = Project.objects.get(pk=project_id)
+            # Utilisation de get_object_or_404 pour s'assurer que le projet existe
+            project = get_object_or_404(Project, pk=project_id)
             context['project'] = project
         return context
 
@@ -106,6 +128,12 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        if not user.is_authenticated:
+            if 'swagger' in self.request.path or 'redoc' in self.request.path:
+                return Comment.objects.none()
+            else:
+                raise NotAuthenticated("Vous devez être authentifié pour accéder à cette ressource.")
+
         project_id = self.kwargs.get('project_pk')
         issue_id = self.kwargs.get('issue_pk')
 
@@ -158,8 +186,15 @@ class ContributorViewSet(viewsets.ModelViewSet):
         user = self.request.user
         project_id = self.kwargs.get('project_pk')
 
+        if not user.is_authenticated:
+            if 'swagger' in self.request.path or 'redoc' in self.request.path:
+                return Contributor.objects.none()
+            else:
+                raise NotAuthenticated("Vous devez être authentifié pour accéder à cette ressource.")
+
         if user.is_staff:
-            return Contributor.objects.filter(project__id=project_id)
+            # return Contributor.objects.filter(project__id=project_id)
+            return Contributor.objects.all()
 
         if project_id:
             # Cas où le project_id est spécifié dans l'URL

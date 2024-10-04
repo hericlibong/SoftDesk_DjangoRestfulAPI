@@ -18,10 +18,6 @@ projects_contributors_router.register(r'contributors', ContributorViewSet, basen
 projects_issues_router = routers.NestedDefaultRouter(router, r'projects', lookup='project')
 projects_issues_router.register(r'issues', IssueViewSet, basename='project-issues')
 
-# Routeur imbriqué pour les issues par contributeur
-contributors_issues_router = routers.NestedDefaultRouter(router, r'contributors', lookup='contributor')
-contributors_issues_router.register(r'issues', IssueViewSet, basename='contributor-issues')
-
 # Routeur imbriqué pour les commentaires par issue
 issues_comments_router = routers.NestedDefaultRouter(router, r'issues', lookup='issue')
 issues_comments_router.register(r'comments', CommentViewSet, basename='issue-comments')
@@ -34,7 +30,6 @@ urlpatterns = [
     path('', include(router.urls)),
     path('', include(projects_contributors_router.urls)),
     path('', include(projects_issues_router.urls)),
-    path('', include(contributors_issues_router.urls)),
     path('', include(issues_comments_router.urls)),
-    path('', include(projects_issues_comments_router.urls)),  # Inclusion du nouveau routeur
+    path('', include(projects_issues_comments_router.urls)),
 ]

@@ -153,6 +153,19 @@ REST_FRAMEWORK = {
 
 # Simple JWT settings
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Durée de vie du token d'accès
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=180),  # Durée de vie du token d'accès
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),      # Durée de vie du token de rafraîchissement
+}
+
+# Swagger settings
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,  # Désactive l'authentification par session
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    },
+    'DEFAULT_MODEL_RENDERING': 'example',
 }
